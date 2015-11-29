@@ -11,7 +11,7 @@ CREATE TABLE "Employe" (
     adresseEmploye varchar(80) NOT NULL,
     dateEmbauche date NOT NULL,
     type TypeEmploye NOT NULL,
-    idAgence integer REFERENCES "Agence" (idAgence)
+    idAgence integer NOT NULL REFERENCES "Agence" (idAgence)
 );
 
 CREATE TABLE "RespAgence" (
@@ -28,18 +28,18 @@ CREATE TABLE "Modele" (
     caution money NOT NULL
 );
 
+CREATE TABLE "Utilitaire" (
+    nomModele varchar(20) PRIMARY KEY REFERENCES "Modele" (nomModele),
+    capacite numeric(2,1),
+    chargeMax integer
+);
+
 CREATE TABLE "Vehicule" (
     immatriculation varchar(8) PRIMARY KEY,
     dateAchat date,
     kilometrage integer,
     nomModele varchar(20) REFERENCES "Modele" (nomModele),
     idAgence integer REFERENCES "Agence" (idAgence)
-);
-
-CREATE TABLE "Utilitaire" (
-    immatriculation varchar(8) PRIMARY KEY REFERENCES "Vehicule" (immatriculation),
-    capacite integer,
-    chargeMax integer
 );
 
 CREATE TYPE TypeClient AS ENUM ('entreprise', 'particulier');
