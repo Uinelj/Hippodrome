@@ -24,14 +24,14 @@ SELECT nomClient, adresseClient FROM "Client" WHERE idClient = (SELECT idClient 
 
 -- REQUÊTE 1
 SELECT nomClient, adresseClient FROM "Client"
-	WHERE idClient = (SELECT idClient FROM "Location"
-        WHERE immatriculation = (SELECT immatriculation FROM "Vehicule"
-            WHERE nomModele = (SELECT nomModele FROM "Modele"
-                WHERE nomModele != (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
-    AND idClient = (SELECT idClient FROM "Location"
-        WHERE immatriculation = (SELECT immatriculation FROM "Vehicule"
-            WHERE nomModele = (SELECT nomModele FROM "Modele"
-        		WHERE nomModele = (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
+	WHERE idClient IN (SELECT idClient FROM "Location"
+        WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule"
+            WHERE nomModele IN (SELECT nomModele FROM "Modele"
+                WHERE nomModele NOT IN (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
+    AND idClient IN (SELECT idClient FROM "Location"
+        WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule"
+            WHERE nomModele IN (SELECT nomModele FROM "Modele"
+        		WHERE nomModele NOT IN (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
 
 -- REQUÊTE 2
 SELECT nomModele, nomMarque FROM "Modele"
