@@ -73,6 +73,12 @@ SELECT *, SUM(tarif) FROM "Vehicule" NATURAL JOIN "Location"
 		WHERE type = 'entreprise')
 
 -- REQUÊTE 9
-
+-- Liste des modèles disponibles
+SELECT * FROM "Modele"
+	WHERE nomModele IN (SELECT nomModele FROM "Vehicule"
+		WHERE immatriculation NOT IN (SELECT immatriculation FROM "Location"
+			WHERE dateRestitution IS NULL))
+	GROUP BY marque
+	ORDER BY marque ASC
 
 -- REQUÊTE 10
