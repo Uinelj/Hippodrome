@@ -1,5 +1,6 @@
 <?php
-$dbconn = pg_connect("host=localhost dbname=mydb user=vincent password=98mKg45Z") or die('connection failed');
+$dbconf = include('config.php');
+$dbconn = pg_connect("host=" . $dbconf['host'] . " dbname=" . $dbconf['dbname'] . " user=" . $dbconf['user'] . " password=" . $dbconf['password']) or die('connection failed');
 if(isset($_GET['error'])) {
 	if($_GET['error'] == '2') {
 		echo "<p> Pas de véhicule disponibles</p>";

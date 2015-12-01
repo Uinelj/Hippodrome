@@ -5,7 +5,10 @@
         <?php include_once('functions.inc.php'); ?>
     </head>
     <body>
-        <?php $dbconn = pg_connect("host=localhost dbname=mydb user=vincent password=98mKg45Z") or die('connection failed'); ?>
+        <?php
+          $dbconf = include('config.php');
+          $dbconn = pg_connect("host=" . $dbconf['host'] . " dbname=" . $dbconf['dbname'] . " user=" . $dbconf['user'] . " password=" . $dbconf['password']) or die('connection failed');
+        ?>
 
         <h1 style="text-align:center;">Requêtes PHP pour le projet de Base de Données</h1>
         <h3 style="text-align:center;">Réalisé par ABADJI Julien et MONOT Vincent</h3>
