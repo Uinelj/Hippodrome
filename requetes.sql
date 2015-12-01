@@ -22,6 +22,14 @@ SELECT nomClient, adresseClient FROM "Client" WHERE idClient = (SELECT idClient 
 -- Clients ayant loué un véhicule utilitaire
 SELECT nomClient, adresseClient FROM "Client" WHERE idClient = (SELECT idClient FROM "Location" WHERE immatriculation = (SELECT immatriculation FROM "Vehicule" WHERE nomModele = (SELECT nomModele FROM "Modele" WHERE nomModele = (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))))
 
+-- Disponibles
+SELECT * FROM "Vehicule"
+	WHERE nomModele IN (SELECT nomModele FROM "Modele"
+		WHERE nomModele = 'Partner'
+		AND marque = 'Peugeot')
+	AND immatriculation NOT IN (SELECT immatriculation FROM "Location"
+		WHERE dateRestitution IS NULL)
+
 -- REQUÊTE 1
 SELECT nomClient, adresseClient FROM "Client"
 	WHERE idClient IN (SELECT idClient FROM "Location"
@@ -87,7 +95,7 @@ SELECT count(*) FROM "Location"
 		WHERE idAgence = 1)
 
 -- Noms des responsables des agences
-SELECT "Agence".idAgence, nomAgence, nomEmploye, count(immatriculation) FROM "Employe" NATURAL JOIN "Agence" JOIN "Vehicule" ON "Vehicule".idAgence = "Agence".idAgence
+SELECT "Agence".idAgence, nomAgence, nomEmploye, count(immatriculation) AS "number" FROM "Employe" NATURAL JOIN "Agence" JOIN "Vehicule" ON "Vehicule".idAgence = "Agence".idAgence
 	WHERE idEmploye IN (SELECT idEmploye FROM "RespAgence")
 	AND immatriculation IN (SELECT immatriculation FROM "Location"
 		WHERE dateRestitution - dateLocation > 3)
