@@ -114,11 +114,14 @@ SELECT *, SUM(tarif) FROM "Vehicule" NATURAL JOIN "Location"
 
 -- REQUÊTE 9
 -- Liste des modèles disponibles
-SELECT * FROM "Modele"
-	WHERE nomModele IN (SELECT nomModele FROM "Vehicule"
-		WHERE immatriculation NOT IN (SELECT immatriculation FROM "Location"
-			WHERE dateRestitution IS NULL))
-	GROUP BY marque
-	ORDER BY marque ASC
+SELECT idAgence, nomModele, marque FROM "Vehicule" NATURAL JOIN "Modele"
+	WHERE immatriculation NOT IN (SELECT immatriculation FROM "Location"
+		WHERE dateRestitution IS NULL)
+	GROUP BY idAgence, marque, nomModele
+	ORDER BY idAgence, marque, nomModele
 
 -- REQUÊTE 10
+-- Noms des gens ayant loué mais pas rendu
+SELECT idClient, nomClient, type, idLocation, immatriculation, agenceLocation, dateLocation FROM "Client" NATURAL JOIN "Location"
+	WHERE dateRestitution IS NULL
+	ORDER BY idLocation
