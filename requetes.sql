@@ -30,7 +30,7 @@ SELECT * FROM "Vehicule"
 	AND immatriculation NOT IN (SELECT immatriculation FROM "Location"
 		WHERE dateRestitution IS NULL)
 
--- REQUÊTE 1
+-- REQUÊTE 1 (Afficher la liste des noms et adresses de tous les clients qui ont effectué au moins une location d’une voiture et d’un véhicule utilitaire)
 SELECT nomClient, adresseClient FROM "Client"
 	WHERE idClient IN (SELECT idClient FROM "Location"
         WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule"
@@ -41,22 +41,22 @@ SELECT nomClient, adresseClient FROM "Client"
             WHERE nomModele IN (SELECT nomModele FROM "Modele"
         		WHERE nomModele NOT IN (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
 
--- REQUÊTE 2
-SELECT nomModele, nomMarque FROM "Modele"
+-- REQUÊTE 2 (Afficher la liste des modèles de véhicules n’ayant fait l’objet d’aucune location de la part des entreprises, vous indiquerez également la marque de chaque véhicule)
+SELECT nomModele, marque FROM "Modele"
 	WHERE nomModele NOT IN (SELECT nomModele FROM "Vehicule"
-		WHERE immatriculation NOT IN (SELECT immatriculation FROM "Location"
-			WHERE idClient NOT IN (SELECT idClient FROM "Client"
+		WHERE immatriculation IN (SELECT immatriculation FROM "Location"
+			WHERE idClient IN (SELECT idClient FROM "Client"
 				WHERE type = 'entreprise')))
 
--- REQUÊTE 3
+-- REQUÊTE 3 (Afficher les numéros et les noms des clients ayant effectué au moins une location pour laquelle l’agence de restitution est différente de l’agence où le véhicule a été loué)
 SELECT idClient, nomClient FROM "Client"
 	WHERE idClient IN (SELECT idClient FROM "Location"
 		WHERE agenceLocation != agenceRestitution)
 
--- REQUÊTE 4
+-- REQUÊTE 4 (Afficher les agences dans lesquelles au moins un véhicule utilitaire de chacune des marques existantes dans l’entreprise est disponible à la location au moment où la requête est exécutée)
 
 
--- REQUÊTE 5
+-- REQUÊTE 5 (Afficher les noms des responsables des agences dans lesquelles il est impossible de louer un véhicule de catégorie voiture. Aucune voiture n’est disponible au moment où la requête est exécutée)
 -- Nom du responsable de l'Agence1
 SELECT nomEmploye, nomAgence FROM "Employe" NATURAL JOIN "Agence"
 	WHERE idEmploye IN (SELECT idEmploye FROM "RespAgence"
@@ -80,14 +80,19 @@ SELECT nomEmploye, nomAgence FROM "Employe" NATURAL JOIN "Agence"
 				WHERE dateRestitution IS NULL)))
 
 
--- REQUÊTE 6
-SELECT nomClient, adresseClient FROM "Client"
-	WHERE idClient = (SELECT idClient FROM "Location"
-		GROUP BY idClient
-		ORDER BY count(*) DESC
-		LIMIT 1)
+-- REQUÊTE 6 (Trouver le plus grand nombre de locations effectuées par un client et afficher les noms et adresses des clients qui ont effectué ce grand nombre de locations)
+SELECT nomClient, adresseClient, count
+	FROM (
+		SELECT idClient, count(*) FROM "Location"
+			GROUP BY idClient
+			ORDER BY count DESC
+			LIMIT 1
+		) AS "LocationNb", "Client"
+	WHERE "LocationNb".idClient = "Client".idClient
+	ORDER BY "LocationNb".count DESC
+	LIMIT 1
 
--- REQUÊTE 7
+-- REQUÊTE 7 (Afficher, agence par agence, le nom de l’agence, le nom de son responsable, ainsi que le nombre de locations de plus de trois jours effectuées en 2015)
 -- Nombre de locations de plus de 3 jours pour l'agence n°1
 SELECT count(*) FROM "Location"
 	WHERE dateRestitution - dateLocation > 3
@@ -105,7 +110,7 @@ SELECT nomModele FROM "Vehicule"
 	GROUP BY nomModele
 	HAVING count(immatriculation) > 3
 
--- REQUÊTE 8 (pas fini)
+-- REQUÊTE 8 (Pour chaque véhicule de moins de 20000km (au moment où la requête est effectuée), donner la somme totale des montants de toutes les locations effectuées par des entreprises dont il a fait l’objet au cours du mois de juillet 2015)
 SELECT *, SUM(tarif) FROM "Vehicule" NATURAL JOIN "Location"
 	WHERE kilometrage < 20000
 	AND immatriculation IN (SELECT immatriculation FROM "Location"
