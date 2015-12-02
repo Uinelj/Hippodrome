@@ -54,6 +54,23 @@ SELECT idClient, nomClient FROM "Client"
 		WHERE agenceLocation != agenceRestitution)
 
 -- REQUÊTE 4 (Afficher les agences dans lesquelles au moins un véhicule utilitaire de chacune des marques existantes dans l’entreprise est disponible à la location au moment où la requête est exécutée)
+SELECT idAgence, nomAgence, adresseAgence
+FROM "Agence" NATURAL JOIN "Vehicule" NATURAL JOIN "Modele"
+WHERE immatriculation NOT IN (
+	SELECT immatriculation
+	FROM "Location"
+	WHERE dateRestitution IS NULL
+)
+AND nomModele IN (
+	SELECT nomModele
+	FROM "Modele" NATURAL JOIN "Utilitaire"
+)
+GROUP BY idAgence, nomAgence, adresseAgence
+HAVING count(DISTINCT marque) = (
+	SELECT count(DISTINCT marque)
+	FROM "Modele"
+)
+ORDER BY idAgence
 /* BAILS DE TEST POUR LA Q4
 
 CREATE TEMP TABLE "a" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN ( SELECT "nommodele" FROM "Utilitaire" ));
@@ -144,28 +161,17 @@ SELECT nomClient, adresseClient, count
 	LIMIT 1
 
 -- REQUÊTE 7 (Afficher, agence par agence, le nom de l’agence, le nom de son responsable, ainsi que le nombre de locations de plus de trois jours effectuées en 2015)
--- Nombre de locations de plus de 3 jours pour l'agence n°1
 
-SELECT "nomagence", "nomemploye"
-FROM "Agence", "Employe"
-WHERE "Employe"."idagence" = "Agence"."idagence" AND
-type = 'responsable'
-
-SELECT count(*) FROM "Location"
-	WHERE dateRestitution - dateLocation > 3
-	AND immatriculation IN (SELECT immatriculation FROM "Vehicule"
-		WHERE idAgence = 1)
-
--- Noms des responsables des agences
-SELECT "Agence".idAgence, nomAgence, nomEmploye, count(immatriculation) AS "number" FROM "Employe" NATURAL JOIN "Agence" JOIN "Vehicule" ON "Vehicule".idAgence = "Agence".idAgence
-	WHERE idEmploye IN (SELECT idEmploye FROM "RespAgence")
-	AND immatriculation IN (SELECT immatriculation FROM "Location"
-		WHERE dateRestitution - dateLocation > 3)
-	GROUP BY "Agence".idAgence, nomAgence, nomEmploye
-
-SELECT nomModele FROM "Vehicule"
-	GROUP BY nomModele
-	HAVING count(immatriculation) > 3
+SELECT idAgence, nomAgence, nomEmploye, count
+FROM (
+	SELECT agenceLocation, count(agenceLocation)
+	FROM "Location"
+	WHERE dateRestitution-dateLocation > 3
+	AND extract(year FROM dateLocation) = 2015
+	GROUP BY agenceLocation
+	ORDER BY agenceLocation ASC
+) AS "LocationNb", "Agence" NATURAL JOIN "Employe" NATURAL JOIN "RespAgence"
+WHERE "LocationNb".agenceLocation = "Agence".idAgence
 
 -- REQUÊTE 8 (Pour chaque véhicule de moins de 20000km (au moment où la requête est effectuée), donner la somme totale des montants de toutes les locations effectuées par des entreprises dont il a fait l’objet au cours du mois de juillet 2015)
 SELECT "Vehicule".immatriculation, nomModele, sum
