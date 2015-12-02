@@ -111,11 +111,23 @@ SELECT nomModele FROM "Vehicule"
 	HAVING count(immatriculation) > 3
 
 -- REQUÊTE 8 (Pour chaque véhicule de moins de 20000km (au moment où la requête est effectuée), donner la somme totale des montants de toutes les locations effectuées par des entreprises dont il a fait l’objet au cours du mois de juillet 2015)
-SELECT *, SUM(tarif) FROM "Vehicule" NATURAL JOIN "Location"
-	WHERE kilometrage < 20000
-	AND immatriculation IN (SELECT immatriculation FROM "Location"
-	AND idClient IN (SELECT idClient FROM "Client"
-		WHERE type = 'entreprise')
+SELECT "Vehicule".immatriculation, nomModele, sum
+FROM (
+	SELECT immatriculation, sum(tarif)
+	FROM "Location"
+	WHERE (to_char(dateLocation, 'YYYY-MM') = '2015-07'
+		OR to_char(dateRestitution, 'YYYY-MM') = '2015-07'
+		OR (SELECT (dateLocation, dateRestitution) OVERLAPS (DATE '2015-07-01', DATE '2015-07-31')))
+	AND idClient IN (
+		SELECT idClient
+		FROM "Client"
+		WHERE type = 'entreprise'
+	)
+	GROUP BY immatriculation
+) AS "LocationSomme", "Vehicule"
+WHERE "LocationSomme".immatriculation = "Vehicule".immatriculation
+AND kilometrage < 20000
+
 
 -- REQUÊTE 9
 -- Liste des modèles disponibles
