@@ -54,6 +54,57 @@ SELECT idClient, nomClient FROM "Client"
 		WHERE agenceLocation != agenceRestitution)
 
 -- REQUÊTE 4 (Afficher les agences dans lesquelles au moins un véhicule utilitaire de chacune des marques existantes dans l’entreprise est disponible à la location au moment où la requête est exécutée)
+/* BAILS DE TEST POUR LA Q4
+
+CREATE TEMP TABLE "a" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN ( SELECT "nommodele" FROM "Utilitaire" ));
+
+FOR i IN
+    SELECT * FROM "Agence"
+LOOP
+    CREATE TEMP TABLE "b" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN (SELECT "nommodele" FROM "Vehicule" WHERE ("nommodele" IN (
+    SELECT "nommodele" FROM "Modele" NATURAL JOIN "Utilitaire")) AND
+    "idagence" = (SELECT "idagence"    FROM "Agence" WHERE "idagence" = i))));
+
+SELECT count (1)
+    FROM a
+    FULL OUTER JOIN b
+        USING ("marque")
+    WHERE a.marque IS NULL
+        OR b.marque IS NULL ;
+END LOOP;
+
+CREATE OR REPLACE FUNCTION raloud() RETURNS TABLE(nomagence) AS
+$$
+  BEGIN
+  isNotSame integer;
+  CREATE TEMP TABLE "a" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN ( SELECT "nommodele" FROM "Utilitaire" ));
+  FOR i IN SELECT "idagence" FROM "Agence" LOOP
+
+    CREATE TEMP TABLE "b" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN (SELECT "nommodele" FROM "Vehicule" WHERE ("nommodele" IN (
+    SELECT "nommodele" FROM "Modele" NATURAL JOIN "Utilitaire")) AND
+    "idagence" = (SELECT "idagence"    FROM "Agence" WHERE "idagence" = i))));
+
+    isNotSame := SELECT count (1)
+        FROM a
+        FULL OUTER JOIN b
+            USING ("marque")
+        WHERE a.marque IS NULL
+            OR b.marque IS NULL ;
+    IF isNotSame = 0 THEN
+      RETURN QUERY INSERT INTO
+    END IF;
+  ENDLOOP;
+  END;
+$$
+
+
+CREATE TEMP TABLE "a" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN ( SELECT "nommodele" FROM "Utilitaire" ));
+
+CREATE TEMP TABLE "b" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN (SELECT "nommodele" FROM "Vehicule" WHERE ("nommodele" IN (
+    SELECT "nommodele" FROM "Modele" NATURAL JOIN "Utilitaire")) AND
+    "idagence" = (SELECT "idagence"    FROM "Agence" WHERE "idagence" = '1')));
+
+*/
 
 
 -- REQUÊTE 5 (Afficher les noms des responsables des agences dans lesquelles il est impossible de louer un véhicule de catégorie voiture. Aucune voiture n’est disponible au moment où la requête est exécutée)
@@ -94,6 +145,12 @@ SELECT nomClient, adresseClient, count
 
 -- REQUÊTE 7 (Afficher, agence par agence, le nom de l’agence, le nom de son responsable, ainsi que le nombre de locations de plus de trois jours effectuées en 2015)
 -- Nombre de locations de plus de 3 jours pour l'agence n°1
+
+SELECT "nomagence", "nomemploye"
+FROM "Agence", "Employe"
+WHERE "Employe"."idagence" = "Agence"."idagence" AND
+type = 'responsable'
+
 SELECT count(*) FROM "Location"
 	WHERE dateRestitution - dateLocation > 3
 	AND immatriculation IN (SELECT immatriculation FROM "Vehicule"
