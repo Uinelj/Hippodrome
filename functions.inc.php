@@ -61,7 +61,7 @@
 		$result .= "</select>\n";
 
 		$result .= "<select name=\"month\" id=\"month\" >\n";
-		$months = array(1 => 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Otobre', 'Novembre', 'Décembre');
+		$months = array(1 => 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre');
 		foreach ($months as $k => $m) {
 			$result .= "\t<option value=\"".$k."\">".$m."</option>\n";
 		}
