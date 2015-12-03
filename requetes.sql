@@ -125,20 +125,6 @@ CREATE TEMP TABLE "b" AS(SELECT "marque" FROM "Modele" WHERE "nommodele" IN (SEL
 
 
 -- REQUÊTE 5 (Afficher les noms des responsables des agences dans lesquelles il est impossible de louer un véhicule de catégorie voiture. Aucune voiture n’est disponible au moment où la requête est exécutée)
--- Nom du responsable de l'Agence1
-SELECT nomEmploye, nomAgence FROM "Employe" NATURAL JOIN "Agence"
-	WHERE idEmploye IN (SELECT idEmploye FROM "RespAgence"
-		WHERE idAgence IN (SELECT idAgence FROM "Agence"
-			WHERE nomAgence = 'Agence1'))
-
--- Voitures (non-utilitaires) non disponibles
-SELECT * FROM "Vehicule"
-	WHERE nomModele IN (SELECT nomModele FROM "Modele"
-		WHERE nomModele NOT IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))
-	AND immatriculation IN (SELECT immatriculation FROM "Location"
-		WHERE dateRestitution IS NULL)
-
--- Final
 SELECT nomEmploye, nomAgence FROM "Employe" NATURAL JOIN "Agence"
 	WHERE idEmploye IN (SELECT idEmploye FROM "RespAgence"
 		WHERE idAgence IN (SELECT idAgence FROM "Vehicule"
