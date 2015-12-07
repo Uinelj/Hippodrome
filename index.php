@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style="width:800px; margin: 0 auto;">
     <head>
         <title>Requêtes PHP</title>
         <?php include_once('functions.inc.php'); ?>
@@ -13,7 +13,7 @@
         <h1 style="text-align:center;">Requêtes PHP pour le projet de Base de Données</h1>
         <h3 style="text-align:center;">Réalisé par ABADJI Julien et MONOT Vincent</h3>
 
-        <h2>Requête 9</h2>
+        <h2>Requête 9 : Location d'un véhicule</h2>
             <?php
                 if(isset($_GET['imm'])) {
                     echo '<p>Le véhicule loué a pour immatriculation '.$_GET['imm'].'</p>';
@@ -33,7 +33,7 @@
                 <input type="submit" value="Ajouter" />
             </form>
 
-        <h2>Requête 10</h2>
+        <h2>Requête 10 : Restitution d'un véhicule</h2>
             <form method="get" action="restitution.php">
                 <?php
                 echo getLocationChoice($dbconn);

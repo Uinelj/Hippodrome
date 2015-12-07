@@ -1,45 +1,38 @@
--- Modèles de véhicules non-utilitaires
-SELECT * FROM "Modele" WHERE nomModele NOT IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire")
-
--- Modèles de véhicules utilitaires
-SELECT * FROM "Modele" WHERE nomModele IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire")
-
--- Véhicules non-utilitaires
-SELECT * FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele NOT IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))
-
--- Véhicules utilitaires
-SELECT * FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))
-
--- Locations de véhicules non-utilitaires
-SELECT * FROM "Location" WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele NOT IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire")))
-
--- Locations de véhicules utilitaires
-SELECT * FROM "Location" WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire")))
-
--- Clients ayant loué un véhicule non-utilitaire
-SELECT nomClient, adresseClient FROM "Client" WHERE idClient IN (SELECT idClient FROM "Location" WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele NOT IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))))
-
--- Clients ayant loué un véhicule utilitaire
-SELECT nomClient, adresseClient FROM "Client" WHERE idClient IN (SELECT idClient FROM "Location" WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule" WHERE nomModele IN (SELECT nomModele FROM "Modele" WHERE nomModele IN (SELECT nommodele FROM "Modele" NATURAL JOIN "Utilitaire"))))
-
--- Disponibles
-SELECT * FROM "Vehicule"
-	WHERE nomModele IN (SELECT nomModele FROM "Modele"
-		WHERE nomModele = 'Partner'
-		AND marque = 'Peugeot')
-	AND immatriculation NOT IN (SELECT immatriculation FROM "Location"
-		WHERE dateRestitution IS NULL)
-
 -- REQUÊTE 1 (Afficher la liste des noms et adresses de tous les clients qui ont effectué au moins une location d’une voiture et d’un véhicule utilitaire)
-SELECT nomClient, adresseClient FROM "Client"
-	WHERE idClient IN (SELECT idClient FROM "Location"
-        WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule"
-            WHERE nomModele IN (SELECT nomModele FROM "Modele"
-                WHERE nomModele IN (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
-    AND idClient IN (SELECT idClient FROM "Location"
-        WHERE immatriculation IN (SELECT immatriculation FROM "Vehicule"
-            WHERE nomModele IN (SELECT nomModele FROM "Modele"
-        		WHERE nomModele NOT IN (SELECT nomModele FROM "Modele" NATURAL JOIN "Utilitaire"))))
+SELECT nomClient, adresseClient
+FROM "Client"
+WHERE idClient IN (
+	SELECT idClient
+	FROM "Location"
+    WHERE immatriculation IN (
+		SELECT immatriculation
+		FROM "Vehicule"
+        WHERE nomModele IN (
+			SELECT nomModele
+			FROM "Modele"
+            WHERE nomModele IN (
+				SELECT nomModele
+				FROM "Modele" NATURAL JOIN "Utilitaire"
+			)
+		)
+	)
+)
+AND idClient IN (
+	SELECT idClient
+	FROM "Location"
+    WHERE immatriculation IN (
+		SELECT immatriculation
+		FROM "Vehicule"
+        WHERE nomModele IN (
+			SELECT nomModele
+			FROM "Modele"
+    		WHERE nomModele NOT IN (
+				SELECT nomModele
+				FROM "Modele" NATURAL JOIN "Utilitaire"
+			)
+		)
+	)
+)
 
 -- REQUÊTE 2 (Afficher la liste des modèles de véhicules n’ayant fait l’objet d’aucune location de la part des entreprises, vous indiquerez également la marque de chaque véhicule)
 SELECT nomModele, marque FROM "Modele"
